@@ -14,7 +14,7 @@ const geminiIntialized = new GoogleGenerativeAI(Gemini_Api_Key)
 
 export default async function generateResponse(prompt: string) {
     try {
-        const model = geminiIntialized.getGenerativeModel({ model: "gemini-1.5-flash-001" })
+        const model = geminiIntialized.getGenerativeModel({ model: "gemini-flash-latest" })
         const result = await model.generateContent(prompt)
             
         const response = result.response
