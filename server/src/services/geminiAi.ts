@@ -12,7 +12,7 @@ if (!Gemini_Api_Key) {
 
 const geminiIntialized = new GoogleGenerativeAI(Gemini_Api_Key)
 
-export default async function geminiAI(prompt: string) {
+export default async function generateResponse(prompt: string) {
     try {
         const model = geminiIntialized.getGenerativeModel({ model: "gemini-1.5-flash" })
         const result = await model.generateContent(prompt)
