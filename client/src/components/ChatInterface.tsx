@@ -1,19 +1,7 @@
-import ThreeBackground from './ThreeBackground';
-
-interface Message {
-    id: number;
-    text: string;
-    sender: 'user' | 'ai';
-    timestamp: Date;
-}
-
-const ChatInterface: React.FC = () => {
+export default function ChatInterface() {
     return (
         <div>
             <h1>Chat Interface</h1>
-            <ThreeBackground />
         </div>
     )
 }
-
-export default ChatInterface

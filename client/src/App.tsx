@@ -1,9 +1,9 @@
-import ChatInterface from "./components/ChatInterface";
+// import ChatInterface from "./components/ChatInterface";
 
 export default function App() {
   return (
     <div>
-      <ChatInterface />
+      {/* <ChatInterface /> */}
     </div>
   )
 }
