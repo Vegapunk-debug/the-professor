@@ -18,7 +18,7 @@ Secure Authentication: A robust user system (JWT-based) allowing learners to sav
 3D Interactive Interface: A high-end frontend experience using React Three Fiber to visualize the AI’s "Neural State" during processing.
 
 4. Technology Stack
-Frontend: React.js, TypeScript, Tailwind CSS, Framer Motion, Three.js.
+Frontend: Next.js, TypeScript, Tailwind CSS, Framer Motion, Three.js.
 
 Backend: Node.js, Express.js, TypeScript.
 
