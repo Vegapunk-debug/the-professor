@@ -3,7 +3,7 @@
 ![The Professor Banner](https://readme-typing-svg.demolab.com?font=Fira+Code&size=45&pause=1000&color=3B82F6&center=true&vCenter=true&width=1000&height=100&lines=THE+PROFESSOR;AI+DOCUMENT+INTELLIGENCE;NEURAL+KNOWLEDGE+EXTRACTION)
 
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Gemini](https://img.shields.io/badge/Google_Gemini-8E75C2?style=for-the-badge&logo=google-gemini&logoColor=white)](https://ai.google.dev/)
 
@@ -53,7 +53,7 @@ The application adheres to the Model-View-Controller (MVC) design pattern to ens
 - **Storage**: MongoDB / Mongoose ODM
 
 ### Frontend
-- **Library**: React 18
+- **Framework**: Next.js
 - **Graphics**: Three.js / React Three Fiber
 - **Styling**: Tailwind CSS
 - **Animation**: Framer Motion
@@ -68,12 +68,12 @@ The application adheres to the Model-View-Controller (MVC) design pattern to ens
 
 ### Frontend Configuration
 ```bash
-cd server
+cd client
 npm install
 npm run dev
 ```
 ### Backend Configuration
 ```bash
-cd client
+cd server
 npm install
 npm run dev
