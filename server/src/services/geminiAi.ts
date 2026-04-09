@@ -33,8 +33,9 @@ export async function generateChatResponse(prompt: string, history: ChatMessage[
         const chat = model.startChat({ history: [] }) // Start empty for now
         const result = await chat.sendMessage(prompt)
         return result.response.text()
-    } catch (error) {
-        throw new Error("Chat failed");
+    } catch (error: any) {
+        console.error("Gemini Chat generation failed:", error.message || error);
+        throw new Error("Failed to generate chat response from AI service.");
     }
 }
 
