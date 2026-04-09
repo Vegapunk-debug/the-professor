@@ -27,15 +27,16 @@ export interface ChatMessage {
 
 export default async function generateResponse(prompt: string) {
     try {
-        const model = geminiIntialized.getGenerativeModel({ model: "gemini-flash-latest" })
+        console.log("Routing prompt to Gemini...");
+        const model = geminiIntialized.getGenerativeModel({ model: "gemini-2.5-flash-lite" })
         const result = await model.generateContent(prompt)
             
         const response = result.response
 
         if (!response || !response.candidates || response.candidates.length === 0) {
-            throw new Error("AI returned no answers");
+            throw new Error("Gemini returned no answers");
         }//Candidates are the responses from gemini
-        console.log("Recieved response from Gemini: ", response.text())
+        console.log("Success: Recieved response from Gemini.", response.text())
 
         return response.text()
 
