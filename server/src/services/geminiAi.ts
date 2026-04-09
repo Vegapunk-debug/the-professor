@@ -25,6 +25,19 @@ export interface ChatMessage {
     text: string;
 }
 
+export async function generateChatResponse(prompt: string, history: ChatMessage[] = []) {
+    // Initial implementation for April 9th
+    try {
+        console.log("Routing chat to Gemini...");
+        const model = geminiIntialized.getGenerativeModel({ model: "gemini-2.5-flash-lite" })
+        const chat = model.startChat({ history: [] }) // Start empty for now
+        const result = await chat.sendMessage(prompt)
+        return result.response.text()
+    } catch (error) {
+        throw new Error("Chat failed");
+    }
+}
+
 export default async function generateResponse(prompt: string) {
     try {
         console.log("Routing prompt to Gemini...");
