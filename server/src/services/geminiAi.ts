@@ -1,6 +1,8 @@
 // The Professor: where i created the gemini ai service. It talks to Google Gemini.
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
+
 import dotenv from "dotenv";
 
 dotenv.config()
@@ -11,6 +13,12 @@ if (!Gemini_Api_Key) {
 }
 
 const geminiIntialized = new GoogleGenerativeAI(Gemini_Api_Key)
+
+const Groq_Api_Key = process.env.GROQ_API_KEY;
+if (!Groq_Api_Key) {
+    throw new Error("ERROR: GROQ API KEY is missing in .env file");
+}
+const groq = new Groq({ apiKey: Groq_Api_Key });
 
 export default async function generateResponse(prompt: string) {
     try {
