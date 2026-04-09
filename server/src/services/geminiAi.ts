@@ -20,6 +20,11 @@ if (!Groq_Api_Key) {
 }
 const groq = new Groq({ apiKey: Groq_Api_Key });
 
+export interface ChatMessage {
+    role: 'user' | 'model';
+    text: string;
+}
+
 export default async function generateResponse(prompt: string) {
     try {
         const model = geminiIntialized.getGenerativeModel({ model: "gemini-flash-latest" })
