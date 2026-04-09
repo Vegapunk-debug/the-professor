@@ -40,9 +40,36 @@ export default async function generateResponse(prompt: string) {
 
         return response.text()
 
-    } catch (error: any) {
-        console.error("AI Error:", error.message || error);
-        throw new Error(`Failed to generate response from AI ${error.message || "Unknown Error"}`)
     }
+    catch (geminiError: any) {
+        // If Gemini fails (e.g., 429 Rate Limit), we log it and move to Groq
+        console.warn(`Gemini Failed (${geminiError.message || "Unknown error"}). Falling back to Groq...`);
 
+        // Groq
+        try {
+            console.log("Routing prompt to Groq...");
+            const chatCompletion = await groq.chat.completions.create({
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt,
+                    },
+                ],
+                model: "llama3-8b-8192"
+            });
+
+            const groqResponse = chatCompletion.choices[0]?.message?.content;
+            
+            if (!groqResponse) {
+                throw new Error("Groq returned no answers");
+            }
+
+            console.log("Success: Received response from Groq.");
+            return groqResponse;
+
+        } catch (groqError: any) {
+            console.error("AI Routing Error: Both Gemini and Groq failed.");
+            throw new Error(`Failed to generate response. Groq Error: ${groqError.message || "Unknown"}`);
+        }
+    }
 }
