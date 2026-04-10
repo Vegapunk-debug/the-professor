@@ -98,7 +98,6 @@ export default async function generateResponse(prompt: string) {
     }
     catch (geminiError: any) {
         console.warn(`Gemini Failed (${geminiError.message || "Unknown error"}). Falling back to Groq...`);
-
         try {
             console.log("Routing prompt to Groq...");
             const chatCompletion = await groq.chat.completions.create({
@@ -124,5 +123,5 @@ export default async function generateResponse(prompt: string) {
             console.error("AI Routing Error: Both Gemini and Groq failed.");
             throw new Error(`Failed to generate response. Groq Error: ${groqError.message || "Unknown"}`);
         }
-}
+    }
 }
