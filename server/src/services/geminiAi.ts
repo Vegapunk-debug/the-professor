@@ -26,11 +26,16 @@ export interface ChatMessage {
 }
 
 export async function generateChatResponse(prompt: string, history: ChatMessage[] = []) {
-    // Initial implementation for April 9th
     try {
-        console.log("Routing chat to Gemini...");
+        console.log("Routing chat to Gemini with", history.length, "history messages...");
         const model = geminiIntialized.getGenerativeModel({ model: "gemini-2.5-flash-lite" })
-        const chat = model.startChat({ history: [] }) // Start empty for now
+
+        const geminiHistory = history.map(msg => ({
+            role: msg.role,
+            parts: [{ text: msg.text }]
+        }))
+
+        const chat = model.startChat({ history: geminiHistory })
         const result = await chat.sendMessage(prompt)
         return result.response.text()
     } catch (error: any) {
@@ -48,7 +53,7 @@ export default async function generateResponse(prompt: string) {
         const response = result.response
 
         if (!response || !response.candidates || response.candidates.length === 0) {
-            throw new Error("Gemini returned no answers");
+            throw new Error("AI returned no answers");
         }//Candidates are the responses from gemini
         console.log("Success: Recieved response from Gemini.", response.text())
 
@@ -56,10 +61,8 @@ export default async function generateResponse(prompt: string) {
 
     }
     catch (geminiError: any) {
-        // If Gemini fails (e.g., 429 Rate Limit), we log it and move to Groq
         console.warn(`Gemini Failed (${geminiError.message || "Unknown error"}). Falling back to Groq...`);
 
-        // Groq
         try {
             console.log("Routing prompt to Groq...");
             const chatCompletion = await groq.chat.completions.create({
@@ -85,5 +88,5 @@ export default async function generateResponse(prompt: string) {
             console.error("AI Routing Error: Both Gemini and Groq failed.");
             throw new Error(`Failed to generate response. Groq Error: ${groqError.message || "Unknown"}`);
         }
-    }
+}
 }
