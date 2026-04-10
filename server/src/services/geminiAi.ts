@@ -37,10 +37,46 @@ export async function generateChatResponse(prompt: string, history: ChatMessage[
 
         const chat = model.startChat({ history: geminiHistory })
         const result = await chat.sendMessage(prompt)
-        return result.response.text()
-    } catch (error: any) {
-        console.error("Gemini Chat generation failed:", error.message || error);
-        throw new Error("Failed to generate chat response from AI service.");
+
+        const response = result.response
+
+        if (!response || !response.candidates || response.candidates.length === 0) {
+            throw new Error("Gemini returned no answers");
+        }
+
+        console.log("Success: Received chat response from Gemini.");
+        return response.text()
+
+    } catch (geminiError: any) {
+        console.warn(`Gemini Chat Failed (${geminiError.message || "Unknown error"}). Falling back to Groq...`);
+
+        try {
+            console.log("Routing chat to Groq with history...");
+
+            const groqMessages = history.map(msg => ({
+                role: msg.role === 'model' ? 'assistant' as const : 'user' as const,
+                content: msg.text
+            }))
+            groqMessages.push({ role: 'user' as const, content: prompt })
+
+            const chatCompletion = await groq.chat.completions.create({
+                messages: groqMessages,
+                model: "llama3-8b-8192"
+            });
+
+            const groqResponse = chatCompletion.choices[0]?.message?.content;
+
+            if (!groqResponse) {
+                throw new Error("Groq returned no answers");
+            }
+
+            console.log("Success: Received chat response from Groq.");
+            return groqResponse;
+
+        } catch (groqError: any) {
+            console.error("AI Routing Error: Both Gemini and Groq failed for chat.");
+            throw new Error(`Failed to generate chat response. Groq Error: ${groqError.message || "Unknown"}`);
+        }
     }
 }
 
