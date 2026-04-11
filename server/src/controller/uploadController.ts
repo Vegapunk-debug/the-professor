@@ -21,9 +21,10 @@ export const handlePdfUpload = async (req: Request, res: Response) => {
 
         fs.unlinkSync(req.file.path)
 
-        res.json({ 
+        res.json({
             filename: req.file.originalname,
-            summary: summary 
+            summary: summary,
+            extractedText: pdfText
         })
 
     } catch (error: any) {
