@@ -21,6 +21,12 @@ export default function ChatInterface() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  useEffect(() => {
     setMessages([
       {
         id: '1',
@@ -72,7 +78,13 @@ export default function ChatInterface() {
                       : 'bg-card rounded-bl-md'
                     }`}
                 >
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  {msg.sender === 'ai' ? (
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-headings:my-2 prose-pre:bg-muted prose-pre:border-2 prose-pre:border-foreground prose-pre:rounded-xl prose-code:text-xs prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-foreground/20">
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p>{msg.text}</p>
+                  )}
                 </div>
 
                 {msg.sender === 'user' && (
