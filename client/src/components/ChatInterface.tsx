@@ -84,6 +84,28 @@ export default function ChatInterface() {
             ))}
           </AnimatePresence>
         </div>
+
+        <div className="px-5 py-4 border-t-2 border-foreground bg-card">
+          <form onSubmit={(e) => e.preventDefault()} className="flex items-end gap-2.5">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              rows={1}
+              className="flex-1 resize-none border-2 border-foreground rounded-xl px-4 py-3 text-sm bg-background placeholder:text-muted-foreground focus:outline-none transition-all"
+              placeholder="Type a message..."
+              disabled={loading}
+              id="chat-input"
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="btn-primary !px-4 !py-3 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+              id="chat-send-btn"
+            >
+              <Send size={16} />
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
