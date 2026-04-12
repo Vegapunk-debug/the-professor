@@ -50,7 +50,6 @@ export default function ChatInterface() {
           </div>
         </div>
 
-        {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((msg) => (
@@ -58,11 +57,29 @@ export default function ChatInterface() {
                 key={msg.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
                 className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className="max-w-[80%] rounded-2xl px-4 py-3 text-sm border-2 border-foreground bg-card">
+                {msg.sender === 'ai' && (
+                  <div className="icon-circle bg-primary/15 !w-7 !h-7 shrink-0 mt-1 !border-[1.5px]">
+                    <Sparkles size={12} />
+                  </div>
+                )}
+
+                <div
+                  className={`max-w-[80%] sm:max-w-[70%] rounded-2xl px-4 py-3 text-sm leading-relaxed border-2 border-foreground ${msg.sender === 'user'
+                      ? 'bg-primary rounded-br-md'
+                      : 'bg-card rounded-bl-md'
+                    }`}
+                >
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
+
+                {msg.sender === 'user' && (
+                  <div className="icon-circle bg-[var(--bg-peach)] !w-7 !h-7 shrink-0 mt-1 !border-[1.5px]">
+                    <span className="text-xs font-black">U</span>
+                  </div>
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
