@@ -70,6 +70,67 @@ export default function ChatInterface() {
     ]);
   };
 
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+
+    const userText = input.trim();
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      text: userText,
+      sender: 'user',
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const chatHistory = messages
+        .filter((m) => m.id !== '1')
+        .map((m) => ({
+          role: m.sender === 'user' ? 'user' : 'ai',
+          text: m.text,
+        }));
+
+      const payload: { prompt: string; context?: string; history: typeof chatHistory } = {
+        prompt: userText,
+        history: chatHistory,
+      };
+      if (docContext) {
+        payload.context = docContext;
+      }
+
+      const res = await axios.post('http://localhost:5001/api/chat', payload);
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: res.data.response,
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      const errMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: '⚠️ Could not connect to the server. Make sure the backend is running on port 5001.',
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errMsg]);
+    } finally {
+      setLoading(false);
+      inputRef.current?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(e);
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] max-w-4xl mx-auto px-4 sm:px-5">
       <div className="bento-card-static !p-0 flex flex-col flex-1 overflow-hidden">
@@ -86,9 +147,23 @@ export default function ChatInterface() {
               </p>
             </div>
           </div>
+          <button
+            onClick={() => {
+              setMessages([{
+                id: Date.now().toString(),
+                text: "Chat cleared! Ready for a fresh conversation 🧹",
+                sender: 'ai',
+                timestamp: new Date(),
+              }]);
+            }}
+            className="p-2 rounded-xl border-2 border-foreground bg-card hover:bg-[var(--bg-pink)] transition-all"
+            title="Clear chat"
+            id="clear-chat-btn"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
 
-        {/* Document context banner */}
         {docContext && (
           <div className="flex items-center justify-between px-5 py-2 bg-[var(--bg-mint)]/30 border-b-2 border-foreground">
             <div className="flex items-center gap-2 text-xs font-bold">
@@ -157,13 +232,15 @@ export default function ChatInterface() {
         </div>
 
         <div className="px-5 py-4 border-t-2 border-foreground bg-card">
-          <form onSubmit={(e) => e.preventDefault()} className="flex items-end gap-2.5">
+          <form onSubmit={sendMessage} className="flex items-end gap-2.5">
             <textarea
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
               rows={1}
-              className="flex-1 resize-none border-2 border-foreground rounded-xl px-4 py-3 text-sm bg-background placeholder:text-muted-foreground focus:outline-none transition-all"
-              placeholder="Type a message..."
+              className="flex-1 resize-none border-2 border-foreground rounded-xl px-4 py-3 text-sm bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              placeholder={docContext ? "Ask about your document..." : "Type a message... (Shift+Enter for new line)"}
               disabled={loading}
               id="chat-input"
             />
