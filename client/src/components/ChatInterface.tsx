@@ -18,29 +18,41 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [docContext, setDocContext] = useState<string | null>(null);
+  const [docName, setDocName] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const storedText = localStorage.getItem('prof_doc_text');
+    const storedName = localStorage.getItem('prof_doc_name');
+
+    if (storedText && storedText.trim().length > 0) {
+      setDocContext(storedText);
+      setDocName(storedName || 'Uploaded Document');
+      setMessages([
+        {
+          id: '1',
+          text: `**Document loaded: ${storedName || 'Uploaded Document'}**\n\nI've read your document! Ask me anything about its contents — I'll answer based on the document context.`,
+          sender: 'ai',
+          timestamp: new Date(),
+        },
+      ]);
+    } else {
+      setMessages([
+        {
+          id: '1',
+          text: "Hey! I'm **The Professor** \n\nAsk me anything — upload a PDF first for context-aware answers, or just chat freely!",
+          sender: 'ai',
+          timestamp: new Date(),
+        },
+      ]);
     }
-  }, [messages, loading]);
-
-  useEffect(() => {
-    setMessages([
-      {
-        id: '1',
-        text: "Hey! I'm **The Professor** \n\nAsk me anything — upload a PDF first for context-aware answers, or just chat freely!",
-        sender: 'ai',
-        timestamp: new Date(),
-      },
-    ]);
   }, []);
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] max-w-4xl mx-auto px-4 sm:px-5">
       <div className="bento-card-static !p-0 flex flex-col flex-1 overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b-2 border-foreground">
           <div className="flex items-center gap-3">
             <div className="icon-circle bg-primary/20 !w-9 !h-9">
