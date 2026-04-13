@@ -48,7 +48,27 @@ export default function ChatInterface() {
         },
       ]);
     }
-  }, []);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  const clearDocContext = () => {
+    localStorage.removeItem('prof_doc_text');
+    localStorage.removeItem('prof_doc_name');
+    localStorage.removeItem('prof_doc_summary');
+    setDocContext(null);
+    setDocName(null);
+    setMessages([
+      {
+        id: Date.now().toString(),
+        text: "Document context cleared! I'm now in free chat mode ",
+        sender: 'ai',
+        timestamp: new Date(),
+      },
+    ]);
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] max-w-4xl mx-auto px-4 sm:px-5">
@@ -67,6 +87,33 @@ export default function ChatInterface() {
             </div>
           </div>
         </div>
+
+        {/* Document context banner */}
+        {docContext && (
+          <div className="flex items-center justify-between px-5 py-2 bg-[var(--bg-mint)]/30 border-b-2 border-foreground">
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <FileText size={12} />
+              <span>Context: {docName}</span>
+            </div>
+            <button
+              onClick={clearDocContext}
+              className="p-1 rounded-lg hover:bg-[var(--bg-pink)]/50 transition-all"
+              title="Remove document context"
+              id="clear-context-btn"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )}
+
+        {/* No document hint */}
+        {!docContext && messages.length <= 1 && (
+          <div className="flex items-center justify-center px-5 py-2 bg-muted/50 border-b-2 border-foreground">
+            <p className="text-[10px] text-muted-foreground">
+               <Link href="/upload" className="underline font-bold hover:text-foreground transition-colors">Upload a PDF</Link> first for document-grounded answers
+            </p>
+          </div>
+        )}
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
           <AnimatePresence initial={false}>
