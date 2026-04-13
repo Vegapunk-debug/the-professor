@@ -54,6 +54,13 @@ export default function ChatInterface() {
     }
   }, [messages, loading]);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 120)}px`;
+    }
+  }, [input]);
+
   const clearDocContext = () => {
     localStorage.removeItem('prof_doc_text');
     localStorage.removeItem('prof_doc_name');
@@ -181,7 +188,6 @@ export default function ChatInterface() {
           </div>
         )}
 
-        {/* No document hint */}
         {!docContext && messages.length <= 1 && (
           <div className="flex items-center justify-center px-5 py-2 bg-muted/50 border-b-2 border-foreground">
             <p className="text-[10px] text-muted-foreground">
@@ -229,6 +235,27 @@ export default function ChatInterface() {
               </motion.div>
             ))}
           </AnimatePresence>
+
+          {/* Typing indicator */}
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2.5"
+            >
+              <div className="icon-circle bg-primary/15 !w-7 !h-7 !border-[1.5px]">
+                <Sparkles size={12} />
+              </div>
+              <div className="bg-card border-2 border-foreground px-4 py-3 rounded-2xl rounded-bl-md">
+                <div className="flex items-center gap-2">
+                  <Loader2 size={14} className="animate-spin" />
+                  <span className="text-xs text-muted-foreground font-bold">
+                    Thinking...
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         <div className="px-5 py-4 border-t-2 border-foreground bg-card">
