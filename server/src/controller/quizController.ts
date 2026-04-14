@@ -16,14 +16,15 @@ Return ONLY a valid JSON array with this exact structure (no markdown, no code f
 [
   {
     "id": 1,
-    "question": \"Question text here?\",
-    "options": [\"Option A\", \"Option B\", \"Option C\", \"Option D\"],
+    "question": "Question text here?",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
     "correct": 0,
-    "explanation": \"Brief explanation of why this answer is correct.\"
+    "explanation": "Brief explanation of why this answer is correct."
   }
 ]
 
-The \"correct\" field is a 0-based index of the correct option.
+The "correct" field is a 0-based index of the correct option.
+Include a mix of conceptual and fact-based questions. Ensure the distractors are plausible.
 Make the questions varied in difficulty. Cover different parts of the document.
 
 Document text:
