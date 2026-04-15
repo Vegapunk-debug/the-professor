@@ -48,7 +48,71 @@ export default function QuizPanel() {
   const [quizState, setQuizState] = useState<QuizState>('intro');
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
   const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [answered, setAnswered] = useState(false);
   const [score, setScore] = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
+  const [hasDocument, setHasDocument] = useState(false);
+  const [docName, setDocName] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    const storedText = localStorage.getItem('prof_doc_text');
+    const storedName = localStorage.getItem('prof_doc_name');
+    if (storedText && storedText.trim().length > 0) {
+      setHasDocument(true);
+      setDocName(storedName || 'Uploaded Document');
+    }
+  }, []);
+
+  const question = questions[currentQ];
+  const totalQ = questions.length;
+  const progressPct = useMemo(
+    () => ((currentQ + (answered ? 1 : 0)) / totalQ) * 100,
+    [currentQ, answered, totalQ]
+  );
+
+  const generateQuiz = async () => {
+    const storedText = localStorage.getItem('prof_doc_text');
+    if (!storedText) return;
+
+    setQuizState('loading');
+    setErrorMsg('');
+
+    try {
+      const res = await axios.post('http://localhost:5001/api/quiz', {
+        text: storedText,
+      });
+
+      const generated = res.data.questions;
+      if (Array.isArray(generated) && generated.length > 0) {
+        setQuestions(generated.map((q: Question, i: number) => ({ ...q, id: i + 1 })));
+        setQuizState('playing');
+      } else {
+        throw new Error('Empty quiz response');
+      }
+    } catch (err: unknown) {
+      const msg =
+        axios.isAxiosError(err) && err.response?.data?.error
+          ? err.response.data.error
+          : 'Failed to generate quiz. Please try again.';
+      setErrorMsg(msg);
+      setQuizState('error');
+    }
+  };
+
+  const startWithSample = () => {
+    setQuestions(sampleQuestions);
+    setQuizState('playing');
+  };
+
+  const handleSelect = (idx: number) => {
+    if (answered) return;
+    setSelected(idx);
+    setAnswered(true);
+    setAnswers((prev) => [...prev, idx]);
+    if (idx === question.correct) setScore((s) => s + 1);
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
