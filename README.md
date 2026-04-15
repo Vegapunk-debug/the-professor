@@ -33,8 +33,6 @@ The application adheres to the Model-View-Controller (MVC) design pattern to ens
 - **Controllers**: Manage the logic flow between user requests and internal services.
 - **Services**: Encapsulated business logic for AI communication, PDF parsing, and database operations.
 
-
-
 ### Design Documents
 - [Use Case Diagram](./useCaseDiagram.md)
 - [Sequence Diagram](./sequenceDiagram.md)
@@ -72,8 +70,10 @@ cd client
 npm install
 npm run dev
 ```
+
 ### Backend Configuration
 ```bash
 cd server
 npm install
 npm run dev
+```
