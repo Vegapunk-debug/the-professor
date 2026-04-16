@@ -1,22 +1,57 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import apiRouter from './routes/api'
+import compression from 'compression';
+import apiRouter from './routes/api';
+import { IDatabase } from './interfaces/IDatabase';
+import { MongoDatabase } from './config/MongoDatabase';
 
-dotenv.config()
+export class AppServer {
+    public app: express.Application;
+    private port: string | number;
+    private database: IDatabase;
 
-const app = express()
-const PORT = process.env.PORT || 5000
+    constructor(database: IDatabase) {
+        this.app = express();
+        this.port = process.env.PORT || 5000;
+        this.database = database;
 
-app.use(cors())
-app.use(express.json())
+        this.initializeMiddlewares();
+        this.initializeRoutes();
+    }
 
-app.use('/api', apiRouter)
+    private initializeMiddlewares(): void {
+        this.app.use(cors());
+        this.app.use(compression());
+        this.app.use(express.json({ limit: '50mb' }));
+    }
 
-app.get('/', (req, res) => {
-    res.send('The Professor API is Live Now')
-})
+    private initializeRoutes(): void {
+        this.app.use('/api', apiRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
-})
+        this.app.get('/', (req, res) => {
+            res.send('The Professor API is Live Now');
+        });
+    }
+
+    public async start(): Promise<void> {
+        try {
+            await this.database.connect();
+
+            this.app.listen(this.port, () => {
+                console.log(`Server running on http://localhost:${this.port}`);
+            });
+        } catch (err: any) {
+            console.error('Failed to start server due to database connection issue:', err.message);
+            process.exit(1);
+        }
+    }
+}
+
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/the-professor';
+const mongoDb = new MongoDatabase(mongoUri);
+
+const server = new AppServer(mongoDb);
+server.start();
