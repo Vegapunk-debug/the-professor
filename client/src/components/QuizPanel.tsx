@@ -76,6 +76,19 @@ export default function QuizPanel() {
     const storedText = localStorage.getItem('prof_doc_text');
     if (!storedText) return;
 
+    const cached = localStorage.getItem('prof_quiz_cache');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setQuestions(parsed.map((q: Question, i: number) => ({ ...q, id: i + 1 })));
+          localStorage.removeItem('prof_quiz_cache');
+          setQuizState('playing');
+          return;
+        }
+      } catch { /* fall through to API call */ }
+    }
+
     setQuizState('loading');
     setErrorMsg('');
 
