@@ -4,17 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { label: "Upload", href: "/upload" },
   { label: "Chat", href: "/chat" },
+  { label: "Visualize", href: "/visualize" },
   { label: "Quiz", href: "/quiz" },
+  { label: "Flashcards", href: "/flashcards" },
 ];
 
 const Navbar = () => {
   const pathName = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className="w-full fixed top-0 z-50 px-4 pt-4">
@@ -48,13 +52,29 @@ const Navbar = () => {
             })}
           </div>
 
-          <div className="hidden md:block">
-            <Link
-              href="/sign-in"
-              className="btn-primary text-sm"
-            >
-              Sign In →
-            </Link>
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated ? (
+              <>
+                <span className="text-xs font-bold text-muted-foreground px-2">
+                  Hi, {user?.name?.split(' ')[0]}
+                </span>
+                <button
+                  onClick={logout}
+                  className="btn-primary text-sm !bg-[var(--bg-pink)] flex items-center gap-1.5"
+                  id="logout-btn"
+                >
+                  <LogOut size={14} />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="btn-primary text-sm"
+              >
+                Sign In →
+              </Link>
+            )}
           </div>
 
           <button
@@ -96,13 +116,23 @@ const Navbar = () => {
                     </Link>
                   );
                 })}
-                <Link
-                  href="/sign-in"
-                  onClick={() => setMobileOpen(false)}
-                  className="btn-primary w-full justify-center mt-1"
-                >
-                  Sign In →
-                </Link>
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => { logout(); setMobileOpen(false); }}
+                    className="btn-primary w-full justify-center mt-1 !bg-[var(--bg-pink)] flex items-center gap-1.5"
+                  >
+                    <LogOut size={14} />
+                    Logout ({user?.name?.split(' ')[0]})
+                  </button>
+                ) : (
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setMobileOpen(false)}
+                    className="btn-primary w-full justify-center mt-1"
+                  >
+                    Sign In →
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}
