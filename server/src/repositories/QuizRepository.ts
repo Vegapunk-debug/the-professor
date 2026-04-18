@@ -9,4 +9,9 @@ export class QuizRepository {
             questions: questions
         })
     }
+
+    async findByDocId(documentId: string): Promise<IQuiz | null> {
+        return await QuizModel.findOne({ doc_id: documentId })
+            .sort({ createdAt: -1 })
+    }
 }
