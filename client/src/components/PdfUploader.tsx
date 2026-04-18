@@ -12,13 +12,24 @@ import {
   X,
   Sparkles,
   ArrowRight,
+  MessageSquareText,
+  BrainCircuit,
+  Network,
+  Layers,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 type UploadState = 'idle' | 'dragging' | 'uploading' | 'success' | 'error';
 
 interface UploadResult {
   filename: string;
   summary: string;
+  extractedText: string;
+  documentId?: string;
+  questions?: Array<{ id: number; question: string; options: string[]; correct: number; explanation: string }>;
+  flashcards?: Array<{ id: number; front: string; back: string; category: string }>;
+  visualization?: { title: string; topics: Array<unknown>; connections: Array<unknown> };
 }
 
 export default function PdfUploader() {
@@ -28,6 +39,7 @@ export default function PdfUploader() {
   const [error, setError] = useState<string>('');
   const [progress, setProgress] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { getAuthHeader } = useAuth();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -41,7 +53,7 @@ export default function PdfUploader() {
 
   const validateFile = (f: File): string | null => {
     if (f.type !== 'application/pdf') return 'Only PDF files are accepted.';
-    if (f.size > 5 * 1024 * 1024) return 'File must be smaller than 5MB.';
+    if (f.size > 20 * 1024 * 1024) return 'File must be smaller than 20MB.';
     return null;
   };
 
@@ -57,12 +69,30 @@ export default function PdfUploader() {
 
     try {
       const res = await axios.post('http://localhost:5001/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data', ...getAuthHeader() },
         onUploadProgress: (e) => {
           if (e.total) setProgress(Math.round((e.loaded / e.total) * 100));
         },
       });
       setResult(res.data);
+      
+      localStorage.setItem('prof_doc_text', res.data.extractedText);
+      localStorage.setItem('prof_doc_name', res.data.filename);
+      localStorage.setItem('prof_doc_summary', res.data.summary);
+      if (res.data.documentId) {
+        localStorage.setItem('prof_doc_id', res.data.documentId);
+      }
+      // Cache parallel AI results so quiz/flashcard/visualize pages load instantly
+      if (res.data.questions) {
+        localStorage.setItem('prof_quiz_cache', JSON.stringify(res.data.questions));
+      }
+      if (res.data.flashcards) {
+        localStorage.setItem('prof_flashcard_cache', JSON.stringify(res.data.flashcards));
+      }
+      if (res.data.visualization) {
+        localStorage.setItem('prof_viz_cache', JSON.stringify(res.data.visualization));
+      }
+      
       setState('success');
     } catch (err: unknown) {
       const msg =
@@ -153,7 +183,7 @@ export default function PdfUploader() {
             <p className="text-sm text-muted-foreground mb-3">
               or click to browse from your computer
             </p>
-            <span className="tag tag-purple text-[10px]">PDF · Max 5MB</span>
+            <span className="tag tag-purple text-[10px]">PDF · Max 20MB</span>
           </motion.div>
         )}
   
@@ -228,9 +258,47 @@ export default function PdfUploader() {
               </p>
             </div>
 
-            <button onClick={reset} className="btn-secondary w-full justify-center">
-              Upload Another
+            <div className="grid grid-cols-2 gap-3 mb-5">
+              <Link
+                href="/chat"
+                className="btn-primary justify-center text-xs"
+                id="start-chat-success-btn"
+              >
+                <MessageSquareText size={14} />
+                Start Chatting
+              </Link>
+              <Link
+                href="/visualize"
+                className="btn-secondary justify-center text-xs !bg-[var(--bg-blue)]"
+                id="visualize-success-btn"
+              >
+                <Network size={14} />
+                Visualize
+              </Link>
+              <Link
+                href="/quiz"
+                className="btn-secondary justify-center text-xs !bg-[var(--bg-mint)]"
+                id="gen-quiz-success-btn"
+              >
+                <BrainCircuit size={14} />
+                Generate Quiz
+              </Link>
+              <Link
+                href="/flashcards"
+                className="btn-secondary justify-center text-xs !bg-[var(--bg-peach)]"
+                id="flashcards-success-btn"
+              >
+                <Layers size={14} />
+                Flashcards
+              </Link>
+            </div>
+
+            <button
+              onClick={reset}
+              className="w-full py-2.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-all flex items-center justify-center gap-2 border-2 border-dashed border-foreground/10 rounded-xl hover:border-foreground/30"
+            >
               <ArrowRight size={14} />
+              Upload Another Document
             </button>
           </motion.div>
         )}
