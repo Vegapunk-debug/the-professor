@@ -1,39 +1,19 @@
-import { Request, Response } from 'express'
-import { extractTextFromPDF } from '../services/pdf'
-import generateResponse from '../services/geminiAi'
-import fs from 'fs'
+import { Request, Response } from "express"
+import { AIService } from "../interfaces/AIService"
+import { DocumentProcessor } from "../interfaces/DocumentProcessor"
+import { QuizService } from "../services/quizService"
+import { FlashcardService } from "../services/flashcardService"
+import { VisualizeService } from "../services/visualizeService"
+import { DocumentRepository } from "../repositories/DocumentRepository"
+import fs from "fs"
 
-export const handlePdfUpload = async (req: Request, res: Response) => {
-    try {
-
-        if (!req.file) {
-            res.status(400).json({ error: "No file uploaded" })
-            return
-        }
-
-        console.log("File received:", req.file.originalname);
-
-        const pdfText = await extractTextFromPDF(req.file.path)
-
-        const prompt = `Here is the text from a document. Summarize it in 3 bullet points:\n\n${pdfText.substring(0, 15000)}`
-
-        const summary = await generateResponse(prompt)
-
-        fs.unlinkSync(req.file.path)
-
-        res.json({
-            filename: req.file.originalname,
-            summary: summary,
-            extractedText: pdfText
-        })
-
-    } catch (error: any) {
-        console.error("Upload Error:", error);
-
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path)
-        }
-        
-        res.status(500).json({ error: error.message })
-    }
-};
+export class UploadController {
+    constructor(
+        private aiService: AIService,
+        private documentProcessor: DocumentProcessor,
+        private quizService: QuizService,
+        private flashcardService: FlashcardService,
+        private visualizeService: VisualizeService,
+        private documentRepository: DocumentRepository
+    ) {}
+}
