@@ -62,4 +62,8 @@ ${text.substring(0, 30000)}`
             throw new Error("Failed to save quiz to database")
         }
     }
+
+    async getQuizByDocId(documentId: string) {
+        return await this.quizRepository.findByDocId(documentId);
+    }
 }

@@ -1,5 +1,6 @@
 import { AIService } from "../interfaces/AIService";
 import { AIParser } from "../utils/parseAIJson";
+import { FlashcardRepository } from "../repositories/FlashcardRepository";
 
 export interface Flashcard {
     id: number;
@@ -11,10 +12,26 @@ export interface Flashcard {
 export class FlashcardService {
     private aiService: AIService;
     private aiParser: AIParser;
+    private flashcardRepository: FlashcardRepository;
 
-    constructor(aiService: AIService, aiParser: AIParser) {
+    constructor(aiService: AIService, aiParser: AIParser, flashcardRepository: FlashcardRepository) {
         this.aiService = aiService;
         this.aiParser = aiParser;
+        this.flashcardRepository = flashcardRepository;
+    }
+
+    async saveToDB(flashcards: Flashcard[], userId: string, documentId: string): Promise<boolean> {
+        try {
+            await this.flashcardRepository.create(userId, documentId, flashcards);
+            return true;
+        } catch (error) {
+            console.error("FlashcardService: Failed to save to DB:", error);
+            return false;
+        }
+    }
+
+    async getFlashcardsByDocId(documentId: string) {
+        return await this.flashcardRepository.findByDocId(documentId);
     }
 
     async generate(text: string): Promise<Flashcard[]> {

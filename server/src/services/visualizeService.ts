@@ -1,5 +1,6 @@
 import { AIService } from "../interfaces/AIService";
 import { AIParser } from "../utils/parseAIJson";
+import { VisualizationRepository } from "../repositories/VisualizationRepository";
 
 export interface TopicVisualization {
     title: string;
@@ -19,10 +20,26 @@ export interface TopicVisualization {
 export class VisualizeService {
     private aiService: AIService;
     private aiParser: AIParser;
+    private visualizationRepository: VisualizationRepository;
 
-    constructor(aiService: AIService, aiParser: AIParser) {
+    constructor(aiService: AIService, aiParser: AIParser, visualizationRepository: VisualizationRepository) {
         this.aiService = aiService;
         this.aiParser = aiParser;
+        this.visualizationRepository = visualizationRepository;
+    }
+
+    async saveToDB(visualization: TopicVisualization, userId: string, documentId: string): Promise<boolean> {
+        try {
+            await this.visualizationRepository.create(userId, documentId, visualization);
+            return true;
+        } catch (error) {
+            console.error("VisualizeService: Failed to save to DB:", error);
+            return false;
+        }
+    }
+
+    async getVisualizationByDocId(documentId: string) {
+        return await this.visualizationRepository.findByDocId(documentId);
     }
 
     async generate(text: string): Promise<TopicVisualization> {
