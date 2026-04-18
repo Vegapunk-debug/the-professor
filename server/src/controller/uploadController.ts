@@ -65,5 +65,53 @@ export class UploadController {
             if (flashcardResult.status === 'rejected') console.warn("Flashcards failed:", flashcardResult.reason)
             if (visualizeResult.status === 'rejected') console.warn("Visualization failed:", visualizeResult.reason)
 
+            let documentId: string | null = null
+            const user = res.locals.user;
+            if (user && user.userId) {
+                try {
+                    const doc = await this.documentRepository.create({
+                        user_id: user.userId,
+                        file_name: req.file.originalname,
+                        filePath: req.file.path,
+                        extracted_text: pdfText
+                    })
+                    documentId = doc._id.toString()
+                    console.log("Document saved to MongoDB:", documentId)
+
+                    if (questions && documentId) {
+                        try {
+                            await this.quizService.saveToDB(questions, user.userId, documentId)
+                        } catch (e) {
+                            console.warn("Quiz DB save failed (non-fatal):", e)
+                        }
+                    }
+                } catch (dbError) {
+                    console.warn("Failed to save document to DB (non-fatal):", dbError)
+                }
+            }
+
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path)
+            }
+            
+            res.json({
+                filename: req.file.originalname,
+                summary: summary,
+                extractedText: pdfText,
+                documentId: documentId,
+                questions: questions,
+                flashcards: flashcards,
+                visualization: visualization
+            })
+
+        } catch (error: any) {
+            console.error("Upload Error:", error);
+
+            if (req.file && fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path)
+            }
+
+            res.status(500).json({ error: error.message })
+        }
     }
 }
