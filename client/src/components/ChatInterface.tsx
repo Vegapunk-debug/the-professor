@@ -6,6 +6,7 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { Send, Loader2, Sparkles, Trash2, Bot, FileText, X } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface Message {
   id: string;
@@ -20,16 +21,20 @@ export default function ChatInterface() {
   const [loading, setLoading] = useState(false);
   const [docContext, setDocContext] = useState<string | null>(null);
   const [docName, setDocName] = useState<string | null>(null);
+  const [docId, setDocId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { getAuthHeader } = useAuth();
 
   useEffect(() => {
     const storedText = localStorage.getItem('prof_doc_text');
     const storedName = localStorage.getItem('prof_doc_name');
+    const storedDocId = localStorage.getItem('prof_doc_id');
 
     if (storedText && storedText.trim().length > 0) {
       setDocContext(storedText);
       setDocName(storedName || 'Uploaded Document');
+      setDocId(storedDocId || null);
       setMessages([
         {
           id: '1',
@@ -48,6 +53,8 @@ export default function ChatInterface() {
         },
       ]);
     }
+  }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -65,8 +72,10 @@ export default function ChatInterface() {
     localStorage.removeItem('prof_doc_text');
     localStorage.removeItem('prof_doc_name');
     localStorage.removeItem('prof_doc_summary');
+    localStorage.removeItem('prof_doc_id');
     setDocContext(null);
     setDocName(null);
+    setDocId(null);
     setMessages([
       {
         id: Date.now().toString(),
@@ -101,15 +110,20 @@ export default function ChatInterface() {
           text: m.text,
         }));
 
-      const payload: { prompt: string; context?: string; history: typeof chatHistory } = {
+      const payload: { prompt: string; context?: string; history: typeof chatHistory; documentId?: string } = {
         prompt: userText,
         history: chatHistory,
       };
       if (docContext) {
         payload.context = docContext;
       }
+      if (docId) {
+        payload.documentId = docId;
+      }
 
-      const res = await axios.post('http://localhost:5001/api/chat', payload);
+      const res = await axios.post('http://localhost:5001/api/chat', payload, {
+        headers: getAuthHeader(),
+      });
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         text: res.data.response,
@@ -236,7 +250,6 @@ export default function ChatInterface() {
             ))}
           </AnimatePresence>
 
-          {/* Typing indicator */}
           {loading && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
