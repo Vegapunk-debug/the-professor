@@ -30,10 +30,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore token on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('prof_token');
     const storedUser = localStorage.getItem('prof_user');
+    const guestUser = sessionStorage.getItem('prof_guest_user');
 
     if (storedToken && storedUser) {
       try {
@@ -42,6 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch {
         localStorage.removeItem('prof_token');
         localStorage.removeItem('prof_user');
+      }
+    } else if (guestUser) {
+      try {
+        setUser(JSON.parse(guestUser));
+        setToken(null);
+      } catch {
+        sessionStorage.removeItem('prof_guest_user');
       }
     }
     setLoading(false);
@@ -55,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
     localStorage.setItem('prof_token', newToken);
     localStorage.setItem('prof_user', JSON.stringify(newUser));
+    sessionStorage.removeItem('prof_guest_user');
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
@@ -66,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(newUser);
       localStorage.setItem('prof_token', newToken);
       localStorage.setItem('prof_user', JSON.stringify(newUser));
+      sessionStorage.removeItem('prof_guest_user');
     }
 
     return message;
@@ -79,7 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     setUser(guestUser);
     setToken(null);
-    // We don't persist guest sessions to localStorage to keep them temporary
+    // Persist guest session in sessionStorage to survive reloads within the same tab
+    sessionStorage.setItem('prof_guest_user', JSON.stringify(guestUser));
     localStorage.removeItem('prof_token');
     localStorage.removeItem('prof_user');
   }, []);
@@ -89,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem('prof_token');
     localStorage.removeItem('prof_user');
+    sessionStorage.removeItem('prof_guest_user');
   }, []);
 
   const getAuthHeader = useCallback((): Record<string, string> => {

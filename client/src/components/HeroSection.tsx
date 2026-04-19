@@ -66,14 +66,14 @@ export default function HeroSection() {
 
             <div className="w-full lg:w-72 flex flex-row lg:flex-col gap-3 shrink-0">
               <div className="flex-1 bg-primary/20 border-2 border-foreground rounded-2xl p-4 text-center">
-                <div className="text-3xl mb-2">🧪</div>
+                <div className="text-3xl mb-2">🔥</div>
                 <p className="text-sm font-bold">Powered by</p>
                 <p className="text-xs text-muted-foreground">
                   Google Gemini
                 </p>
               </div>
               <div className="flex-1 bg-secondary/30 border-2 border-foreground rounded-2xl p-4 text-center">
-                <div className="text-3xl mb-2">🏗️</div>
+                <div className="text-3xl mb-2"></div>
                 <p className="text-sm font-bold">Architecture</p>
                 <p className="text-xs text-muted-foreground">
                   MVC + OOP Design

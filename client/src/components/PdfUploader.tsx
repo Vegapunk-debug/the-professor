@@ -82,16 +82,6 @@ export default function PdfUploader() {
       if (res.data.documentId) {
         localStorage.setItem('prof_doc_id', res.data.documentId);
       }
-      // Cache parallel AI results so quiz/flashcard/visualize pages load instantly
-      if (res.data.questions) {
-        localStorage.setItem('prof_quiz_cache', JSON.stringify(res.data.questions));
-      }
-      if (res.data.flashcards) {
-        localStorage.setItem('prof_flashcard_cache', JSON.stringify(res.data.flashcards));
-      }
-      if (res.data.visualization) {
-        localStorage.setItem('prof_viz_cache', JSON.stringify(res.data.visualization));
-      }
       
       setState('success');
     } catch (err: unknown) {
@@ -260,7 +250,7 @@ export default function PdfUploader() {
 
             <div className="grid grid-cols-2 gap-3 mb-5">
               <Link
-                href="/chat"
+                href={`/chat${result.documentId ? `?doc=${result.documentId}` : ''}`}
                 className="btn-primary justify-center text-xs"
                 id="start-chat-success-btn"
               >
@@ -268,7 +258,7 @@ export default function PdfUploader() {
                 Start Chatting
               </Link>
               <Link
-                href="/visualize"
+                href={`/visualize${result.documentId ? `?doc=${result.documentId}` : ''}`}
                 className="btn-secondary justify-center text-xs !bg-[var(--bg-blue)]"
                 id="visualize-success-btn"
               >
@@ -276,7 +266,7 @@ export default function PdfUploader() {
                 Visualize
               </Link>
               <Link
-                href="/quiz"
+                href={`/quiz${result.documentId ? `?doc=${result.documentId}` : ''}`}
                 className="btn-secondary justify-center text-xs !bg-[var(--bg-mint)]"
                 id="gen-quiz-success-btn"
               >
@@ -284,7 +274,7 @@ export default function PdfUploader() {
                 Generate Quiz
               </Link>
               <Link
-                href="/flashcards"
+                href={`/flashcards${result.documentId ? `?doc=${result.documentId}` : ''}`}
                 className="btn-secondary justify-center text-xs !bg-[var(--bg-peach)]"
                 id="flashcards-success-btn"
               >
