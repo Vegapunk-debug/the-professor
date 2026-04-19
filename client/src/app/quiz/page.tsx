@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import QuizPanel from '@/components/QuizPanel';
 
@@ -17,7 +18,9 @@ export default function QuizPage() {
             Test your understanding with auto-generated MCQs
           </p>
         </div>
-        <QuizPanel />
+        <Suspense fallback={<div className="text-center p-10">Preparing quiz...</div>}>
+          <QuizPanel />
+        </Suspense>
       </div>
     </main>
   );
