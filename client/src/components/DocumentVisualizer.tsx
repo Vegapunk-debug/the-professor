@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
 import {
   Network,
   Loader2,
@@ -53,21 +55,48 @@ export default function DocumentVisualizer() {
   const [expandedTopic, setExpandedTopic] = useState<number | null>(null);
   const [hasDocument, setHasDocument] = useState(false);
   const [docName, setDocName] = useState('');
+  const [docId, setDocId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [hoveredConnection, setHoveredConnection] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  const { getAuthHeader } = useAuth();
 
   useEffect(() => {
+    const docIdInUrl = searchParams.get('doc');
     const storedText = localStorage.getItem('prof_doc_text');
     const storedName = localStorage.getItem('prof_doc_name');
-    if (storedText && storedText.trim().length > 0) {
+
+    if (docIdInUrl) {
+      setDocId(docIdInUrl);
+      setHasDocument(true);
+      setDocName('Selected Document');
+      loadExistingVisualization(docIdInUrl);
+    } else if (storedText && storedText.trim().length > 0) {
       setHasDocument(true);
       setDocName(storedName || 'Uploaded Document');
     }
-  }, []);
+  }, [searchParams]);
+
+  const loadExistingVisualization = async (documentId: string) => {
+    setVisState('loading');
+    try {
+      const res = await axios.get(`http://localhost:5001/api/documents/${documentId}/visualize`);
+      const existingViz = res.data.visualization;
+      if (existingViz && existingViz.title && Array.isArray(existingViz.topics)) {
+        setData(existingViz);
+        setVisState('display');
+      } else {
+        setVisState('intro');
+      }
+    } catch (err) {
+      console.warn('Failed to load existing visualization:', err);
+      setVisState('intro');
+    }
+  };
 
   const generateVisualization = useCallback(async () => {
     const storedText = localStorage.getItem('prof_doc_text');
-    if (!storedText) return;
+    if (!storedText && !docId) return;
 
     const cached = localStorage.getItem('prof_viz_cache');
     if (cached) {
@@ -75,7 +104,6 @@ export default function DocumentVisualizer() {
         const parsed = JSON.parse(cached);
         if (parsed && parsed.title && Array.isArray(parsed.topics)) {
           setData(parsed);
-          localStorage.removeItem('prof_viz_cache'); // Use cache once
           setVisState('display');
           return;
         }
@@ -88,6 +116,9 @@ export default function DocumentVisualizer() {
     try {
       const res = await axios.post('http://localhost:5001/api/visualize', {
         text: storedText,
+        documentId: docId
+      }, {
+        headers: getAuthHeader()
       });
 
       const viz = res.data.visualization;

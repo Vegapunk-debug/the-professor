@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
 import {
   Layers,
   Loader2,
@@ -39,16 +41,43 @@ export default function FlashcardPanel() {
   const [reviewing, setReviewing] = useState<Set<number>>(new Set());
   const [hasDocument, setHasDocument] = useState(false);
   const [docName, setDocName] = useState('');
+  const [docId, setDocId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const searchParams = useSearchParams();
+  const { getAuthHeader } = useAuth();
 
   useEffect(() => {
+    const docIdInUrl = searchParams.get('doc');
     const storedText = localStorage.getItem('prof_doc_text');
     const storedName = localStorage.getItem('prof_doc_name');
-    if (storedText && storedText.trim().length > 0) {
+
+    if (docIdInUrl) {
+      setDocId(docIdInUrl);
+      setHasDocument(true);
+      setDocName('Selected Document');
+      loadExistingFlashcards(docIdInUrl);
+    } else if (storedText && storedText.trim().length > 0) {
       setHasDocument(true);
       setDocName(storedName || 'Uploaded Document');
     }
-  }, []);
+  }, [searchParams]);
+
+  const loadExistingFlashcards = async (documentId: string) => {
+    setFlashState('loading');
+    try {
+      const res = await axios.get(`http://localhost:5001/api/documents/${documentId}/flashcards`);
+      const existingCards = res.data.flashcards;
+      if (Array.isArray(existingCards) && existingCards.length > 0) {
+        setCards(existingCards.map((c: Flashcard, i: number) => ({ ...c, id: i + 1 })));
+        setFlashState('playing');
+      } else {
+        setFlashState('intro');
+      }
+    } catch (err) {
+      console.warn('Failed to load existing flashcards:', err);
+      setFlashState('intro');
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -66,7 +95,7 @@ export default function FlashcardPanel() {
 
   const generateFlashcards = useCallback(async () => {
     const storedText = localStorage.getItem('prof_doc_text');
-    if (!storedText) return;
+    if (!storedText && !docId) return;
 
     // Check for pre-cached flashcards from parallel upload processing
     const cached = localStorage.getItem('prof_flashcard_cache');
@@ -79,7 +108,6 @@ export default function FlashcardPanel() {
           setIsFlipped(false);
           setMastered(new Set());
           setReviewing(new Set());
-          localStorage.removeItem('prof_flashcard_cache'); // Use cache once
           setFlashState('playing');
           return;
         }
@@ -92,6 +120,9 @@ export default function FlashcardPanel() {
     try {
       const res = await axios.post('http://localhost:5001/api/flashcards', {
         text: storedText,
+        documentId: docId
+      }, {
+        headers: getAuthHeader()
       });
 
       const generated = res.data.flashcards;

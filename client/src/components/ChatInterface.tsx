@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Send, Loader2, Sparkles, Trash2, Bot, FileText, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -24,36 +25,76 @@ export default function ChatInterface() {
   const [docId, setDocId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const { getAuthHeader } = useAuth();
+  const { getAuthHeader, isAuthenticated } = useAuth();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const docIdInUrl = searchParams.get('doc');
     const storedText = localStorage.getItem('prof_doc_text');
     const storedName = localStorage.getItem('prof_doc_name');
     const storedDocId = localStorage.getItem('prof_doc_id');
 
-    if (storedText && storedText.trim().length > 0) {
-      setDocContext(storedText);
-      setDocName(storedName || 'Uploaded Document');
-      setDocId(storedDocId || null);
-      setMessages([
-        {
-          id: '1',
-          text: `**Document loaded: ${storedName || 'Uploaded Document'}**\n\nI've read your document! Ask me anything about its contents — I'll answer based on the document context.`,
-          sender: 'ai',
-          timestamp: new Date(),
-        },
-      ]);
-    } else {
-      setMessages([
-        {
-          id: '1',
-          text: "Hey! I'm **The Professor** \n\nAsk me anything — upload a PDF first for context-aware answers, or just chat freely!",
-          sender: 'ai',
-          timestamp: new Date(),
-        },
-      ]);
-    }
-  }, []);
+    const loadInitialContext = async () => {
+      if (docIdInUrl) {
+        setDocId(docIdInUrl);
+        if (isAuthenticated) {
+          try {
+            const historyRes = await axios.get(`http://localhost:5001/api/history/${docIdInUrl}`, {
+              headers: getAuthHeader()
+            });
+            
+            if (historyRes.data.messages && historyRes.data.messages.length > 0) {
+              const formattedMessages: Message[] = historyRes.data.messages.map((m: any) => ({
+                id: m._id,
+                text: m.message,
+                sender: m.role === 'model' ? 'ai' : 'user',
+                timestamp: new Date(m.timestamp)
+              }));
+              setMessages(formattedMessages);
+            } else {
+              setMessages([{
+                id: '1',
+                text: "Hey! I've loaded your document. Ask me anything about it!",
+                sender: 'ai',
+                timestamp: new Date(),
+              }]);
+            }
+            
+
+            setDocName('Selected Document');
+            setDocContext('LOADING_FROM_SERVER');
+          } catch (err) {
+            console.error('Failed to load history:', err);
+          }
+        }
+      } 
+
+      else if (storedText && storedText.trim().length > 0) {
+        setDocContext(storedText);
+        setDocName(storedName || 'Uploaded Document');
+        setDocId(storedDocId || null);
+        setMessages([
+          {
+            id: '1',
+            text: `**Document loaded: ${storedName || 'Uploaded Document'}**\n\nI've read your document! Ask me anything about its contents — I'll answer based on the document context.`,
+            sender: 'ai',
+            timestamp: new Date(),
+          },
+        ]);
+      } else {
+        setMessages([
+          {
+            id: '1',
+            text: "Hey! I'm **The Professor** \n\nAsk me anything — upload a PDF first for context-aware answers, or just chat freely!",
+            sender: 'ai',
+            timestamp: new Date(),
+          },
+        ]);
+      }
+    };
+
+    loadInitialContext();
+  }, [searchParams, isAuthenticated]);
 
   useEffect(() => {
     if (scrollRef.current) {

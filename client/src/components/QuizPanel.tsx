@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
 import {
   CheckCircle,
   XCircle,
@@ -54,16 +56,43 @@ export default function QuizPanel() {
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [hasDocument, setHasDocument] = useState(false);
   const [docName, setDocName] = useState('');
+  const [docId, setDocId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const searchParams = useSearchParams();
+  const { getAuthHeader } = useAuth();
 
   useEffect(() => {
+    const docIdInUrl = searchParams.get('doc');
     const storedText = localStorage.getItem('prof_doc_text');
     const storedName = localStorage.getItem('prof_doc_name');
-    if (storedText && storedText.trim().length > 0) {
+
+    if (docIdInUrl) {
+      setDocId(docIdInUrl);
+      setHasDocument(true);
+      setDocName('Selected Document');
+      loadExistingQuiz(docIdInUrl);
+    } else if (storedText && storedText.trim().length > 0) {
       setHasDocument(true);
       setDocName(storedName || 'Uploaded Document');
     }
-  }, []);
+  }, [searchParams]);
+
+  const loadExistingQuiz = async (documentId: string) => {
+    setQuizState('loading');
+    try {
+      const res = await axios.get(`http://localhost:5001/api/documents/${documentId}/quiz`);
+      const existingQuestions = res.data.questions;
+      if (Array.isArray(existingQuestions) && existingQuestions.length > 0) {
+        setQuestions(existingQuestions.map((q: Question, i: number) => ({ ...q, id: i + 1 })));
+        setQuizState('playing');
+      } else {
+        setQuizState('intro');
+      }
+    } catch (err) {
+      console.warn('Failed to load existing quiz:', err);
+      setQuizState('intro');
+    }
+  };
 
   const question = questions[currentQ];
   const totalQ = questions.length;
@@ -74,7 +103,8 @@ export default function QuizPanel() {
 
   const generateQuiz = async () => {
     const storedText = localStorage.getItem('prof_doc_text');
-    if (!storedText) return;
+    
+    if (!storedText && !docId) return;
 
     const cached = localStorage.getItem('prof_quiz_cache');
     if (cached) {
@@ -82,7 +112,6 @@ export default function QuizPanel() {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setQuestions(parsed.map((q: Question, i: number) => ({ ...q, id: i + 1 })));
-          localStorage.removeItem('prof_quiz_cache');
           setQuizState('playing');
           return;
         }
@@ -95,6 +124,9 @@ export default function QuizPanel() {
     try {
       const res = await axios.post('http://localhost:5001/api/quiz', {
         text: storedText,
+        documentId: docId
+      }, {
+        headers: getAuthHeader()
       });
 
       const generated = res.data.questions;
