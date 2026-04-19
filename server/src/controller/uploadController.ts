@@ -85,6 +85,22 @@ export class UploadController {
                             console.warn("Quiz DB save failed (non-fatal):", e)
                         }
                     }
+
+                    if (flashcards && documentId) {
+                        try {
+                            await this.flashcardService.saveToDB(flashcards, user.userId, documentId)
+                        } catch (e) {
+                            console.warn("Flashcard DB save failed (non-fatal):", e)
+                        }
+                    }
+
+                    if (visualization && documentId) {
+                        try {
+                            await this.visualizeService.saveToDB(visualization, user.userId, documentId)
+                        } catch (e) {
+                            console.warn("Visualization DB save failed (non-fatal):", e)
+                        }
+                    }
                 } catch (dbError) {
                     console.warn("Failed to save document to DB (non-fatal):", dbError)
                 }
