@@ -6,6 +6,8 @@ import { AIParser } from "../utils/parseAIJson"
 import { ChatHistoryRepository } from "../repositories/ChatHistoryRepository"
 import { DocumentRepository } from "../repositories/DocumentRepository"
 import { QuizRepository } from "../repositories/QuizRepository"
+import { FlashcardRepository } from "../repositories/FlashcardRepository"
+import { VisualizationRepository } from "../repositories/VisualizationRepository"
 
 
 import { GeminiService } from "../services/geminiAi"
@@ -49,6 +51,8 @@ const upload = multerConfig.uploader
 const chatHistoryRepository = new ChatHistoryRepository()
 const documentRepository = new DocumentRepository()
 const quizRepository = new QuizRepository()
+const flashcardRepository = new FlashcardRepository()
+const visualizationRepository = new VisualizationRepository()
 
 const supabaseUrl = process.env.SUPABASE_URL?.trim()
 if (!supabaseUrl) throw new Error("ERROR: SUPABASE_URL is missing in .env file")
@@ -64,14 +68,14 @@ console.log("Supabase Key length:", supabaseKey.length);
 console.log("Supabase Key preview:", supabaseKey.substring(0, 10) + "..." + supabaseKey.substring(supabaseKey.length - 10));
 
 const quizService = new QuizService(aiService, aiParser, quizRepository)
-const flashcardService = new FlashcardService(aiService, aiParser)
-const visualizeService = new VisualizeService(aiService, aiParser)
+const flashcardService = new FlashcardService(aiService, aiParser, flashcardRepository)
+const visualizeService = new VisualizeService(aiService, aiParser, visualizationRepository)
 
-const chatController = new ChatController(aiService, chatHistoryRepository)
+const chatController = new ChatController(aiService, chatHistoryRepository, documentRepository)
 const uploadController = new UploadController(aiService, pdfProcessor, quizService, flashcardService, visualizeService, documentRepository)
-const quizController = new QuizController(quizService)
-const flashcardController = new FlashcardController(flashcardService)
-const visualizeController = new VisualizeController(visualizeService)
+const quizController = new QuizController(quizService, documentRepository)
+const flashcardController = new FlashcardController(flashcardService, documentRepository)
+const visualizeController = new VisualizeController(visualizeService, documentRepository)
 const authController = new AuthController(authService)
 const historyController = new HistoryController(chatHistoryRepository, documentRepository)
 
@@ -89,5 +93,9 @@ router.post('/visualize', authMiddleware.optionalHandle, visualizeController.han
 
 router.get('/history/:documentId', authMiddleware.handle, historyController.getChatHistory)
 router.get('/documents', authMiddleware.handle, historyController.getUserDocuments)
+
+router.get('/documents/:documentId/quiz', authMiddleware.optionalHandle, quizController.getQuiz)
+router.get('/documents/:documentId/flashcards', authMiddleware.optionalHandle, flashcardController.getFlashcards)
+router.get('/documents/:documentId/visualize', authMiddleware.optionalHandle, visualizeController.getVisualization)
 
 export default router
