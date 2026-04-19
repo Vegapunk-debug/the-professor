@@ -26,7 +26,7 @@ export default function SignInPage() {
       if (mode === 'register') {
         const message = await register(name, email, password);
         if (message) {
-          setError(message); // Show the "check email" message as a non-error alert
+          setError(message);
           setLoading(false);
           return;
         }
