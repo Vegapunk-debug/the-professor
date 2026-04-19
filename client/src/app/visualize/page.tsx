@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import DocumentVisualizer from '@/components/DocumentVisualizer';
 
@@ -17,7 +18,9 @@ export default function VisualizePage() {
             See your document&apos;s topics, connections, and key insights at a glance
           </p>
         </div>
-        <DocumentVisualizer />
+        <Suspense fallback={<div className="text-center p-10">Generating visualization...</div>}>
+          <DocumentVisualizer />
+        </Suspense>
       </div>
     </main>
   );

@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import FlashcardPanel from '@/components/FlashcardPanel';
 
@@ -17,7 +18,9 @@ export default function FlashcardsPage() {
             Master key concepts with interactive flip cards
           </p>
         </div>
-        <FlashcardPanel />
+        <Suspense fallback={<div className="text-center p-10">Loading study session...</div>}>
+          <FlashcardPanel />
+        </Suspense>
       </div>
     </main>
   );
