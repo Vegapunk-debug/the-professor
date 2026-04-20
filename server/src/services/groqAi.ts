@@ -5,7 +5,7 @@ export class GroqService implements ChatAIService {
     private groq: Groq;
     private model: string;
 
-    constructor(apiKey: string, model: string = "llama3-8b-8192") {
+    constructor(apiKey: string, model: string = "llama-3.1-8b-instant") {
         this.groq = new Groq({ apiKey });
         this.model = model;
     }
