@@ -4,7 +4,8 @@
  */
 
 // In Next.js, variables prefixed with NEXT_PUBLIC_ are available in the browser.
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+export const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 // Exporting individual endpoints for convenience
 export const API_ENDPOINTS = {
