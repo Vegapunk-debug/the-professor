@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Send, Loader2, Sparkles, Trash2, Bot, FileText, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE } from '@/config/api';
 
 interface Message {
   id: string;
@@ -39,7 +40,7 @@ export default function ChatInterface() {
         setDocId(docIdInUrl);
         if (isAuthenticated) {
           try {
-            const historyRes = await axios.get(`http://localhost:5001/api/history/${docIdInUrl}`, {
+            const historyRes = await axios.get(`${API_BASE}/history/${docIdInUrl}`, {
               headers: getAuthHeader()
             });
             
@@ -162,7 +163,7 @@ export default function ChatInterface() {
         payload.documentId = docId;
       }
 
-      const res = await axios.post('http://localhost:5001/api/chat', payload, {
+      const res = await axios.post(`${API_BASE}/chat`, payload, {
         headers: getAuthHeader(),
       });
       const aiMsg: Message = {

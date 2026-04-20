@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5001/api';
+import { API_BASE } from '@/config/api';
 
 interface User {
   userId: string;

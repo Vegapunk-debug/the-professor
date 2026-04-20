@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE } from '@/config/api';
 import {
   Network,
   Loader2,
@@ -80,7 +81,7 @@ export default function DocumentVisualizer() {
   const loadExistingVisualization = async (documentId: string) => {
     setVisState('loading');
     try {
-      const res = await axios.get(`http://localhost:5001/api/documents/${documentId}/visualize`);
+      const res = await axios.get(`${API_BASE}/documents/${documentId}/visualize`);
       const existingViz = res.data.visualization;
       if (existingViz && existingViz.title && Array.isArray(existingViz.topics)) {
         setData(existingViz);
@@ -114,7 +115,7 @@ export default function DocumentVisualizer() {
     setErrorMsg('');
 
     try {
-      const res = await axios.post('http://localhost:5001/api/visualize', {
+      const res = await axios.post(`${API_BASE}/visualize`, {
         text: storedText,
         documentId: docId
       }, {

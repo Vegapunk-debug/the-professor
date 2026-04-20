@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE } from '@/config/api';
 import {
   Layers,
   Loader2,
@@ -65,7 +66,7 @@ export default function FlashcardPanel() {
   const loadExistingFlashcards = async (documentId: string) => {
     setFlashState('loading');
     try {
-      const res = await axios.get(`http://localhost:5001/api/documents/${documentId}/flashcards`);
+      const res = await axios.get(`${API_BASE}/documents/${documentId}/flashcards`);
       const existingCards = res.data.flashcards;
       if (Array.isArray(existingCards) && existingCards.length > 0) {
         setCards(existingCards.map((c: Flashcard, i: number) => ({ ...c, id: i + 1 })));
@@ -118,7 +119,7 @@ export default function FlashcardPanel() {
     setErrorMsg('');
 
     try {
-      const res = await axios.post('http://localhost:5001/api/flashcards', {
+      const res = await axios.post(`${API_BASE}/flashcards`, {
         text: storedText,
         documentId: docId
       }, {

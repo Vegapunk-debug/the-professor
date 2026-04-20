@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE } from '@/config/api';
 
 type UploadState = 'idle' | 'dragging' | 'uploading' | 'success' | 'error';
 
@@ -68,7 +69,7 @@ export default function PdfUploader() {
     formData.append('file', f);
 
     try {
-      const res = await axios.post('http://localhost:5001/api/upload', formData, {
+      const res = await axios.post(`${API_BASE}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data', ...getAuthHeader() },
         onUploadProgress: (e) => {
           if (e.total) setProgress(Math.round((e.loaded / e.total) * 100));

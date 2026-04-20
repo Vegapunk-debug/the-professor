@@ -17,6 +17,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE } from '@/config/api';
 
 interface Document {
   _id: string;
@@ -39,7 +40,7 @@ export default function DocumentsPage() {
 
   const fetchDocuments = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/documents', {
+      const res = await axios.get(`${API_BASE}/documents`, {
         headers: getAuthHeader()
       });
       setDocuments(res.data.documents || []);

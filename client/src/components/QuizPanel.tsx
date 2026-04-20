@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE } from '@/config/api';
 import {
   CheckCircle,
   XCircle,
@@ -80,7 +81,7 @@ export default function QuizPanel() {
   const loadExistingQuiz = async (documentId: string) => {
     setQuizState('loading');
     try {
-      const res = await axios.get(`http://localhost:5001/api/documents/${documentId}/quiz`);
+      const res = await axios.get(`${API_BASE}/documents/${documentId}/quiz`);
       const existingQuestions = res.data.questions;
       if (Array.isArray(existingQuestions) && existingQuestions.length > 0) {
         setQuestions(existingQuestions.map((q: Question, i: number) => ({ ...q, id: i + 1 })));
@@ -122,7 +123,7 @@ export default function QuizPanel() {
     setErrorMsg('');
 
     try {
-      const res = await axios.post('http://localhost:5001/api/quiz', {
+      const res = await axios.post(`${API_BASE}/quiz`, {
         text: storedText,
         documentId: docId
       }, {
