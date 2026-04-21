@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import apiRouter from './routes/api';
@@ -34,6 +34,15 @@ export class AppServer {
         this.app.get('/', (req, res) => {
             res.send('The Professor API is Live Now');
         });
+
+        // Global Error Handler
+        this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+            console.error(`[ERROR] ${new Date().toISOString()}:`, err.stack || err.message);
+            res.status(err.status || 500).json({
+                error: err.message || "Internal Server Error",
+                timestamp: new Date().toISOString()
+            });
+        });
     }
 
     public async start(): Promise<void> {
@@ -41,7 +50,7 @@ export class AppServer {
             await this.database.connect();
 
             this.app.listen(this.port, () => {
-                console.log(`Server running on http://localhost:${this.port}`);
+                console.log(`[READY] The Professor API is live at http://localhost:${this.port}`);
             });
         } catch (err: any) {
             console.error('Failed to start server due to database connection issue:', err.message);

@@ -63,9 +63,7 @@ if (!supabaseKey) throw new Error("ERROR: SUPABASE_KEY is missing in .env file")
 const authService = new SupabaseAuthService(supabaseUrl, supabaseKey)
 const authMiddleware = new AuthMiddleware(authService)
 
-console.log("Supabase URL loaded:", supabaseUrl);
-console.log("Supabase Key length:", supabaseKey.length);
-console.log("Supabase Key preview:", supabaseKey.substring(0, 10) + "..." + supabaseKey.substring(supabaseKey.length - 10));
+console.log("Supabase Auth Service integrated successfully.");
 
 const quizService = new QuizService(aiService, aiParser, quizRepository)
 const flashcardService = new FlashcardService(aiService, aiParser, flashcardRepository)

@@ -1,5 +1,5 @@
 
-import { Request, Response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { ChatAIService, ChatMessage } from "../interfaces/ChatAIService"
 import { ChatHistoryRepository } from "../repositories/ChatHistoryRepository"
 import { DocumentRepository } from "../repositories/DocumentRepository"
@@ -15,7 +15,7 @@ export class ChatController {
         this.documentRepository = documentRepository;
     }
 
-    handleChat = async (req: Request, res: Response) => {
+    handleChat = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { prompt, context, history, documentId } = req.body
 
@@ -92,8 +92,7 @@ export class ChatController {
             res.status(200).json({ response })
 
         } catch (error) {
-            console.error("Error in chat route:", error);
-            res.status(500).json({ error: "AI Service Failed" })
+            next(error);
         }
     }
 }

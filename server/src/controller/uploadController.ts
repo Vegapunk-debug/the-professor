@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { AIService } from "../interfaces/AIService"
 import { DocumentProcessor } from "../interfaces/DocumentProcessor"
 import { QuizService } from "../services/quizService"
@@ -31,7 +31,7 @@ export class UploadController {
         this.documentRepository = documentRepository;
     }
 
-    handleUpload = async (req: Request, res: Response) => {
+    handleUpload = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.file) {
                 res.status(400).json({ error: "No file uploaded" })
@@ -121,13 +121,11 @@ export class UploadController {
             })
 
         } catch (error: any) {
-            console.error("Upload Error:", error);
-
             if (req.file && fs.existsSync(req.file.path)) {
                 fs.unlinkSync(req.file.path)
             }
 
-            res.status(500).json({ error: error.message })
+            next(error)
         }
     }
 }
