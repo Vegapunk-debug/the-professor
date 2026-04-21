@@ -390,7 +390,7 @@ export default function DocumentVisualizer() {
                         initial={{ opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 + cidx * 0.06 }}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 border-foreground/10 transition-all cursor-default text-xs ${
+                        className={`flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-xl border-2 border-foreground/10 transition-all cursor-default text-xs ${
                           isHovered ? 'bg-primary/10 border-foreground/30' : 'bg-muted/30'
                         }`}
                         onMouseEnter={() => setHoveredConnection(cidx)}

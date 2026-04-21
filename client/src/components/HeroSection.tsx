@@ -22,10 +22,10 @@ export default function HeroSection() {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={item} className="bento-card-static !p-8 sm:!p-10 md:!p-12 mb-6">
+        <motion.div variants={item} className="bento-card-static !p-5 sm:!p-8 md:!p-12 mb-6">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-5">
                 <span className="tag tag-yellow">
                   <Sparkles size={12} />
                   AI-Powered
@@ -51,20 +51,20 @@ export default function HeroSection() {
                 documents into dynamic learning experiences.
               </p>
 
-              <div className="flex flex-wrap gap-3">
-                <Link href="/upload" className="btn-primary text-base px-6 py-3">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                <Link href="/upload" className="btn-primary text-base px-6 py-3 w-full sm:w-auto justify-center">
                   <Upload size={16} />
                   Upload a PDF
                   <ArrowRight size={16} />
                 </Link>
-                <Link href="/chat" className="btn-secondary text-base px-6 py-3">
+                <Link href="/chat" className="btn-secondary text-base px-6 py-3 w-full sm:w-auto justify-center">
                   <MessageSquare size={16} />
                   Try AI Chat
                 </Link>
               </div>
             </div>
 
-            <div className="w-full lg:w-72 flex flex-row lg:flex-col gap-3 shrink-0">
+            <div className="w-full lg:w-72 flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
               <div className="flex-1 bg-primary/20 border-2 border-foreground rounded-2xl p-4 text-center">
                 <div className="text-3xl mb-2">🔥</div>
                 <p className="text-sm font-bold">Powered by</p>
@@ -85,7 +85,7 @@ export default function HeroSection() {
 
         <motion.div
           variants={container}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"
         >
           {[
             { icon: FileText, label: 'Neural Extraction', value: 'PDF', bg: 'bg-[var(--bg-peach)]' },

@@ -138,6 +138,9 @@
     @apply border-border outline-ring/50;
     box-sizing: border-box;
   }
+  html, body {
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans), 'Inter', system-ui, -apple-system, sans-serif;
@@ -254,7 +257,7 @@
   .tag-blue { background: var(--bg-blue); }
 
   .page-title {
-    @apply text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1];
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1];
   }
   .section-title {
     @apply text-2xl md:text-3xl font-black tracking-tight;

@@ -19,3 +19,7 @@ server/dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Unwanted files
+server/test_supabase.js
+server/uploads/

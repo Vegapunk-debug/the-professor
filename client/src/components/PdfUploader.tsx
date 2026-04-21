@@ -249,7 +249,7 @@ export default function PdfUploader() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
               <Link
                 href={`/chat${result.documentId ? `?doc=${result.documentId}` : ''}`}
                 className="btn-primary justify-center text-xs"
