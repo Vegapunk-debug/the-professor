@@ -34,6 +34,12 @@ Inspired by the precision and chemistry of professional systems, this platform e
 | **Neural Visualization** | Interactive 3D visualization of the AI's internal state using React Three Fiber. |
 | **Secure Workspaces** | JWT-based authentication with Supabase integration to persist documents and chat history. |
 
+### Design Documents
+- [Use Case Diagram](./useCaseDiagram.md)
+- [Sequence Diagram](./sequenceDiagram.md)
+- [Class Diagram](./classDiagram.md)
+- [ER Diagram](./ErDiagram.md)
+
 ## Tech Stack
 
 ### Frontend
