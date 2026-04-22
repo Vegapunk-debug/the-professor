@@ -68,7 +68,8 @@ The project follows a decoupled Monorepo-style architecture:
 graph TD
     Client[Next.js Frontend] -->|Auth/API Calls| Server[Express Backend]
     Server -->|Metadata & Content| MongoDB[(MongoDB)]
-    Server -->|LLM Requests| Gemini[Google Gemini AI]
+    Server -->|Primary LLM| Gemini[Google Gemini AI]
+    Server -->|Fallback LLM| Groq[Groq AI]
     Server -->|Auth| Supabase[Supabase Auth]
 ```
 
